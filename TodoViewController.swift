@@ -6,20 +6,29 @@
 //
 
 import UIKit
+import RealmSwift
 
 class TodoViewController: UIViewController {
     
     @IBOutlet var titleTextField: UITextField!
     @IBOutlet var detailTextField: UITextView!
     
+    //日付の設定
     @IBOutlet weak var DateField: UITextField!
     var datePicker: UIDatePicker = UIDatePicker()
     
-
+    
+    let realm = try! Realm()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        // 枠のカラー
+        detailTextField.layer.borderColor = UIColor.black.cgColor
+        
+        // 枠の幅
+        detailTextField.layer.borderWidth = 1.0
         
         // ピッカー設定
         datePicker.datePickerMode = UIDatePicker.Mode.dateAndTime
@@ -38,6 +47,43 @@ class TodoViewController: UIViewController {
         DateField.inputAccessoryView = toolbar
     }
     
+    func read() -> Todo?{
+        //realmを使ってTodoから最初のデータを取り出す
+        return realm.objects(Todo.self).first
+    }
+    
+    @IBAction func save(){
+        let title: String = titleTextField.text!
+        let detail: String = detailTextField.text!
+        let date: String = DateField.text!
+        
+        let todo: Todo? = read()
+        //インスタンス作成
+        let newTodo = Todo()
+        newTodo.title = title
+        newTodo.detail = detail
+        newTodo.date = date
+        if todo != nil {
+            let results = realm.objects(Todo.self)
+            newTodo.id = (Int(results[results.count - 1].id)) + 1
+        } else {
+            newTodo.id = 1
+        }
+        try! realm.write{
+            realm.add(newTodo)
+        }
+        print(realm.objects(Todo.self))
+        
+        let alert: UIAlertController = UIAlertController(title: "成功", message: "保存しました", preferredStyle: .alert)
+        
+        alert.addAction(
+            UIAlertAction(title: "OK", style: .default,handler: nil)
+        )
+        present(alert,animated:true,completion: nil)
+    }
+    
+    
+    
     // 決定ボタン押下
     @objc func done() {
         DateField.endEditing(true)
@@ -45,9 +91,8 @@ class TodoViewController: UIViewController {
         // 日付のフォーマット
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        DateField.text = "\(formatter.string(from: Date()))"
+        DateField.text = "\(formatter.string(from: datePicker.date))"
     }
 
-   
 
 }
