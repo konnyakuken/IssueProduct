@@ -65,6 +65,8 @@ class ViewController: UIViewController,UITextFieldDelegate,UITableViewDataSource
         return true
     }
     
+
+    
     //スワイプしたセルを削除　
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == UITableViewCell.EditingStyle.delete {

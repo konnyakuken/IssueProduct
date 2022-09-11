@@ -7,6 +7,7 @@
 
 import UIKit
 import RealmSwift
+import SwiftUI
 
 class TodoViewController: UIViewController {
     
@@ -31,10 +32,11 @@ class TodoViewController: UIViewController {
         detailTextField.layer.borderWidth = 1.0
         
         // ピッカー設定
-        datePicker.datePickerMode = UIDatePicker.Mode.dateAndTime
+        datePicker.datePickerMode = UIDatePicker.Mode.date
         datePicker.timeZone = NSTimeZone.local
-        datePicker.locale = Locale.current
+        datePicker.locale = Locale(identifier: "MDY")
         DateField.inputView = datePicker
+        datePicker.preferredDatePickerStyle = .wheels
         
         // 決定バーの生成
         let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
@@ -57,6 +59,26 @@ class TodoViewController: UIViewController {
         let detail: String = detailTextField.text!
         let date: String = DateField.text!
         
+        if(title != "" && detail != "" && date != ""){
+            addDB(title: title,detail: detail,date: date)
+            let alert: UIAlertController = UIAlertController(title: "成功", message: "保存しました", preferredStyle: .alert)
+            alert.addAction(
+                UIAlertAction(title: "OK", style: .default,handler: nil)
+            )
+            present(alert,animated:true,completion: nil)
+        }else{
+            let alert: UIAlertController = UIAlertController(title: "失敗", message: "すべての項目を埋めてください", preferredStyle: .alert)
+            alert.addAction(
+                UIAlertAction(title: "OK", style: .default,handler: nil)
+            )
+            present(alert,animated:true,completion: nil)
+        }
+        
+        
+       
+    }
+    
+    func addDB(title:String,detail:String,date:String){
         let todo: Todo? = read()
         //インスタンス作成
         let newTodo = Todo()
@@ -73,13 +95,6 @@ class TodoViewController: UIViewController {
             realm.add(newTodo)
         }
         print(realm.objects(Todo.self))
-        
-        let alert: UIAlertController = UIAlertController(title: "成功", message: "保存しました", preferredStyle: .alert)
-        
-        alert.addAction(
-            UIAlertAction(title: "OK", style: .default,handler: nil)
-        )
-        present(alert,animated:true,completion: nil)
     }
     
     
